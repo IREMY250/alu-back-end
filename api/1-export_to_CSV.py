@@ -23,7 +23,7 @@ def export_to_csv(employee_id: int) -> None:
 
     user = user_response.json()
     user_id = user.get("id")
-    username = user.get("username")   # This is the fix: use "username", not "name"
+    username = user.get("username")
 
     # Fetch all tasks for this user
     todos_response = requests.get(f"{base_url}/todos",
