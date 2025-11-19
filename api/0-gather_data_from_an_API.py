@@ -26,8 +26,8 @@ def get_employee_todo_progress(employee_id: int) -> None:
     employee_name = user_resp.json().get("name")
 
     # Fetch employee's todos
-    todos_resp = requests.get(f"{base_url}/todos", params={"userId": employee_id})
-    todos = todos_resp.json()
+    todor = requests.get(f"{base_url}/todos", params={"userId": employee_id})
+    todos = todor.json()
 
     # Calculate completed tasks
     completed = [t for t in todos if t.get("completed")]
