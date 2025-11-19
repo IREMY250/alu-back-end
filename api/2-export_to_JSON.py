@@ -2,7 +2,6 @@
 """
 Export all tasks for a given employee to JSON format.
 File: USER_ID.json
-Format: { "USER_ID": [ { "task": "...", "completed": bool, "username": "..." }, ... ] }
 """
 
 import json
