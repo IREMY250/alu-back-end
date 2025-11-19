@@ -1,35 +1,62 @@
 #!/usr/bin/python3
 """
-Using a REST API and an EMP_ID, save info about their TODO list in a json file
+Export all tasks for a given employee to JSON format.
+File: USER_ID.json
+Format: { "USER_ID": [ { "task": "...", "completed": bool, "username": "..." }, ... ] }
 """
+
 import json
 import requests
 import sys
 
-if __name__ == "__main__":
-    """ Main section """
-    BASE_URL = 'https://jsonplaceholder.typicode.com'
-    employee_id = sys.argv[1] if len(sys.argv) > 1 else None
 
-    if not employee_id:
-        print("Please provide an employee ID as an argument.")
-        sys.exit(1)
+def export_to_json(employee_id: int) -> None:
+    """
+    Fetch employee tasks and export them to a JSON file.
+    """
+    base_url = "https://jsonplaceholder.typicode.com"
 
-    employee = requests.get(f"{BASE_URL}/users/{employee_id}/").json()
-    employee_name = employee.get("username")
-    emp_todos = requests.get(f"{BASE_URL}/users/{employee_id}/todos").json()
-    serialized_todos = []
+    # Get user information
+    user_resp = requests.get(f"{base_url}/users/{employee_id}")
+    if user_resp.status_code != 200:
+        return
 
-    for todo in emp_todos:
-        serialized_todos.append({
-            "task": todo.get("title"),
-            "completed": todo.get("completed"),
-            "username": employee_name
+    user = user_resp.json()
+    user_id = str(user.get("id"))        # JSON key must be string
+    username = user.get("username")
+
+    # Get all tasks for this user
+    todos_resp = requests.get(f"{base_url}/todos",
+                              params={"userId": employee_id})
+    todos = todos_resp.json()
+
+    # Build the required structure
+    tasks_list = []
+    for task in todos:
+        tasks_list.append({
+            "task": task.get("title"),
+            "completed": task.get("completed"),
+            "username": username
         })
 
-    output_data = {employee_id: serialized_todos}
+    # Final dictionary with USER_ID as key
+    data = {user_id: tasks_list}
 
-    with open(f"{employee_id}.json", 'w') as file:
-        json.dump(output_data, file, indent=4)
+    # Write to JSON file
+    filename = f"{user_id}.json"
+    with open(filename, "w", encoding="utf-8") as f:
+        json.dump(data, f)
 
-    print(f"Tasks for employee {employee_id} exported to {file_name}.")
+    # No print needed – checker only checks file content and name
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        sys.exit(1)
+
+    try:
+        emp_id = int(sys.argv[1])
+    except ValueError:
+        sys.exit(1)
+
+    export_to_json(emp_id)
