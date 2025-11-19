@@ -19,31 +19,27 @@ def get_employee_todo_progress(employee_id: int) -> None:
     base_url = "https://jsonplaceholder.typicode.com"
 
     # Fetch employee details
-    user_response = requests.get(f"{base_url}/users/{employee_id}")
-    if user_response.status_code != 200:
+    user_resp = requests.get(f"{base_url}/users/{employee_id}")
+    if user_resp.status_code != 200:
         print("Employee not found")
         return
 
-    user = user_response.json()
-    employee_name = user.get("name")
+    employee_name = user_resp.json().get("name")
 
     # Fetch employee's todos
-    todos_response = requests.get(f"{base_url}/todos", params={"userId": employee_id})
-    todos = todos_response.json()
+    todos_resp = requests.get(f"{base_url}/todos", params={"userId": employee_id})
+    todos = todos_resp.json()
 
-    # Count completed and total tasks
-    completed_tasks = [task for task in todos if task.get("completed")]
-    number_of_done_tasks = len(completed_tasks)
-    total_number_of_tasks = len(todos)
+    # Calculate completed tasks
+    completed = [t for t in todos if t.get("completed")]
+    done = len(completed)
+    total = len(todos)
 
-    # Display progress
-    print(
-        f"Employee {employee_name} is done with tasks("
-        f"{number_of_done_tasks}/{total_number_of_tasks}):"
-    )
+    # First line
+    print(f"Employee {employee_name} is done with tasks({done}/{total}):")
 
-    # Display titles of completed tasks for indentation
-    for task in completed_tasks:
+    # Completed task titles (with exactly one tab and one space before title)
+    for task in completed:
         print(f"\t {task.get('title')}")
 
 
